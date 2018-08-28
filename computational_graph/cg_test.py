@@ -34,6 +34,15 @@ class TestVariableOperator(unittest.TestCase):
         self.assertEqual(v.grad, 2.0)
         self.assertAlmostEqual(self.v0.grad, 3.0*v0_grad_)
         self.assertAlmostEqual(self.v1.grad, 3.0*v1_grad_)
+        # add with const
+        v = self.v0 + 1
+        v_ = self.v0_ + 1
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
+        v = 1 + self.v0
+        v_ = 1 + self.v0_
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
 
     def test_sub(self):
         v = self.v0 - self.v1
@@ -53,6 +62,15 @@ class TestVariableOperator(unittest.TestCase):
         self.assertEqual(v.grad, 2.0)
         self.assertAlmostEqual(self.v0.grad, 3.0*v0_grad_)
         self.assertAlmostEqual(self.v1.grad, 3.0*v1_grad_)
+        # subtract with const
+        v = self.v0 - 1
+        v_ = self.v0_ - 1
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
+        v = 1 - self.v0
+        v_ = 1 - self.v0_
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
 
     def test_mut(self):
         v = self.v0 * self.v1
@@ -72,6 +90,15 @@ class TestVariableOperator(unittest.TestCase):
         self.assertEqual(v.grad, 2.0)
         self.assertAlmostEqual(self.v0.grad, 3.0 * v0_grad_)
         self.assertAlmostEqual(self.v1.grad, 3.0 * v1_grad_)
+        # multiply with const
+        v = self.v0 * 2
+        v_ = self.v0_ * 2
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
+        v = 2 * self.v0
+        v_ = 2 * self.v0_
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
 
     def test_div(self):
         v = self.v0 / self.v1
@@ -92,6 +119,15 @@ class TestVariableOperator(unittest.TestCase):
         self.assertEqual(v.grad, 2.0)
         self.assertAlmostEqual(self.v0.grad, 3.0*v0_grad_)
         self.assertAlmostEqual(self.v1.grad, 3.0*v1_grad_)
+        # divide with const
+        v = self.v0 / 2
+        v_ = self.v0_ / 2
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
+        v = 2 / self.v0
+        v_ = 2 / self.v0_
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
 
     def test_chain_mut(self):
         v = self.v1 * self.v1 * self.v1
@@ -109,6 +145,11 @@ class TestVariableOperator(unittest.TestCase):
         v.backward()
         self.assertEqual(v.grad, 2.0)
         self.assertAlmostEqual(self.v1.grad, 11*v1_square)  # not 3 times
+        # mutliply const
+        v = 2 * self.v1 * 3
+        v_ = 2 * self.v1_ * 3
+        v.forward()
+        self.assertAlmostEqual(v.value, v_)
 
     def test_iadd(self):
         self.v0 += self.v1

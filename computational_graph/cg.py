@@ -231,58 +231,115 @@ class ReLUGate(Gate):
 
 
 class Variable(object):
+    """A wrapper for Node and Gates."""
 
     def __init__(self, value=None, node=None):
         self.node = Node(value, 0.0, None) if node is None else node
 
     @property
     def value(self):
+        """Return variable value after forward running."""
         return self.node.value
 
     @property
     def grad(self):
+        """Return variable grad after backward running."""
         return self.node.grad
 
     def forward(self):
+        """forward and return variable self.
+        Run forward before access its value."""
         self.node.forward()
         return self
 
     def backward(self, grad=1.0):
+        """Backward gradients and return variable self.
+        Run forward and backward before access its grad.
+        Maybe you should zero gradient first if you don't
+        want to acculumate gradient.
+        """
         self.node.backward(grad)
         return self
 
     def zero_grad(self, backprop=True):
+        """Clear gradients and return variable self."""
         self.node.zero_grad(backprop)
         return self
+
+    def tovar(self, other):
+        """Convert node or const into variable."""
+        if isinstance(other, Variable):
+            return other
+        elif isinstance(other, Node):
+            return Variable(node=other)
+        else:
+            # const
+            return Variable(node=ConstNode(other))
 
     def __str__(self):
         return str(self.node.value)
 
     def __add__(self, other):
+        """self+other, other is a variable or const."""
+        other = self.tovar(other)
         return Variable(node=AddGate(self.node, other.node).output())
 
+    def __radd__(self, other):
+        """other+self, other is a const."""
+        other = self.tovar(other)
+        return Variable(node=AddGate(other.node, self.node).output())
+
     def __iadd__(self, other):
+        """self+=other, other is a variable or const."""
+        other = self.tovar(other)
         self.node.set_value(other.node.value, True)
         return self
 
     def __sub__(self, other):
+        """self-other, other is a variable or const."""
+        other = self.tovar(other)
         return Variable(node=SubtractGate(self.node, other.node).output())
 
+    def __rsub__(self, other):
+        """other-self, other is a const."""
+        other = self.tovar(other)
+        return Variable(node=SubtractGate(other.node, self.node).output())
+
     def __isub__(self, other):
+        """self-=other, other is a variable or const."""
+        other = self.tovar(other)
         self.node.set_value(-other.node.value, True)
         return self
 
     def __mul__(self, other):
+        """self*other, other is a variable or const."""
+        other = self.tovar(other)
         return Variable(node=MultiplyGate(self.node, other.node).output())
 
+    def __rmul__(self, other):
+        """other*self, other is a const."""
+        other = self.tovar(other)
+        return Variable(node=MultiplyGate(other.node, self.node).output())
+
     def __imul__(self, other):
+        """self*=other, other is a variable or const."""
+        other = self.tovar(other)
         self.node.set_value(self.node.value * other.node.value)
         return self
 
     def __truediv__(self, other):
+        """self/other, other is a variable or const."""
+        other = self.tovar(other)
         return Variable(node=DivideGate(self.node, other.node).output())
 
+    def __rtruediv__(self, other):
+        """other/self, other is a const."""
+        other = self.tovar(other)
+        return Variable(node=DivideGate(other.node, self.node).output())
+
     def __itruediv__(self, other):
+        """other/=self, other is a variable or const."""
+        other = self.tovar(other)
         self.node.set_value(self.node.value / other.node.value)
         return self
 
