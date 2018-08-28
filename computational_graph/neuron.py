@@ -7,7 +7,7 @@ from cg import Node, AddGate, MultiplyGate, SigmoidGate
 # example: use node and gate to build computational graph.
 ###
 class Neuron(object):
-    """y = sigmoid(ax + by + c)
+    """f = sigmoid(ax + by + c)
 
     If you want, you can assume (x, y) is datapoint(fixed), (a, b, c) are 
     parameters(tuned). But there isn't difference between them for now.
