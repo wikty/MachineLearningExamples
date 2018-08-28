@@ -184,6 +184,17 @@ class MaxGate(Gate):
         else:
             return [0.0, self.out_node.grad * 1.0]
 
+class MinGate(Gate):
+
+    def forward(self):
+        return min(self.in_node1.value, self.in_node2.value)
+
+    def backward(self):
+        if self.in_node1.value < self.in_node2.value:
+            return [self.out_node.grad * 1.0, 0.0]
+        else:
+            return [0.0, self.out_node.grad * 1.0]
+
 
 class ExpGate(Gate):
 
@@ -285,6 +296,10 @@ class F(object):
     @staticmethod
     def max(v1, v2):
         return Variable(node=MaxGate(v1.node, v2.node).output())
+
+    @staticmethod
+    def min(v1, v2):
+        return Variable(node=MinGate(v1.node, v2.node).output())
 
     @staticmethod
     def pow(v, power):

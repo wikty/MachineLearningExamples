@@ -93,10 +93,52 @@ class TestVariableOperator(unittest.TestCase):
 		self.assertAlmostEqual(self.v0.grad, 3.0*v0_grad_)
 		self.assertAlmostEqual(self.v1.grad, 3.0*v1_grad_)
 
+	def test_chain_mut(self):
+		v = self.v1 * self.v1 * self.v1
+		v_ = self.v1_ * self.v1_ * self.v1_
+		v1_square = self.v1_ * self.v1_
+		self.assertIsNone(v.value, None)
+		v.forward()
+		self.assertAlmostEqual(v.value, v_)
+		# clear gradient
+		v.zero_grad()
+		v.backward()
+		self.assertEqual(v.grad, 1.0)
+		self.assertAlmostEqual(self.v1.grad, 3*v1_square)
+		# accumulate gradient
+		v.backward()
+		self.assertEqual(v.grad, 2.0)
+		self.assertAlmostEqual(self.v1.grad, 11*v1_square)  # not 3 times
+
+
 	def test_max_f(self):
 		v = F.max(self.v1, self.v2)
 		v_ = max(self.v1_, self.v2_)
 		if self.v1_ > self.v2_:
+			v1_grad_ = 1.0
+			v2_grad_ = 0.0
+		else:
+			v1_grad_ = 0.0
+			v2_grad_ = 1.0
+		self.assertIsNone(v.value, None)
+		v.forward()
+		self.assertAlmostEqual(v.value, v_)
+		# clear gradient
+		v.zero_grad()
+		v.backward()
+		self.assertEqual(v.grad, 1.0)
+		self.assertAlmostEqual(self.v1.grad, v1_grad_)
+		self.assertAlmostEqual(self.v2.grad, v2_grad_)
+		# accumulate gradient
+		v.backward()
+		self.assertEqual(v.grad, 2.0)
+		self.assertAlmostEqual(self.v1.grad, 3.0*v1_grad_)
+		self.assertAlmostEqual(self.v2.grad, 3.0*v2_grad_)
+
+	def test_max_f(self):
+		v = F.min(self.v1, self.v2)
+		v_ = min(self.v1_, self.v2_)
+		if self.v1_ < self.v2_:
 			v1_grad_ = 1.0
 			v2_grad_ = 0.0
 		else:
