@@ -3,6 +3,9 @@ import math
 from cg import Node, AddGate, MultiplyGate, SigmoidGate
 
 
+###
+# example: use node and gate to build computational graph.
+###
 class Neuron(object):
     """y = sigmoid(ax + by + c)
 
