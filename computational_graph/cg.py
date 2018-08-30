@@ -256,6 +256,36 @@ class ReLUGate(Gate):
         return [self.out_node.grad * f]
 
 
+class NegativeGate(Gate):
+
+    def forward(self):
+        return -(self.in_node1.value)
+
+    def backward(self):
+        return [self.out_node.grad * (-1.0)]
+
+
+class PositiveGate(Gate):
+
+    def forward(self):
+        return +(self.in_node1.value)
+
+    def backward(self):
+        return [self.out_node.grad * 1.0]
+
+
+class AbsoluteGate(Gate):
+
+    def forward(self):
+        return abs(self.in_node1.value)
+
+    def backward(self):
+        if self.in_node1.value > 0.0:
+            return [self.out_node.grad * 1.0]
+        else:
+            return [self.out_node.grad * (-1.0)]
+
+
 class Variable(object):
     """A wrapper for Node and Gates."""
 
@@ -376,6 +406,15 @@ class Variable(object):
         other = self._tovar(other)
         self.node = DivideGate(self.node, other.node).output()
         return self
+
+    def __neg__(self):
+        return Variable(node=NegativeGate(self.node).output())
+
+    def __pos__(self):
+        return Variable(node=PositiveGate(self.node).output())
+
+    def __abs__(self):
+        return Variable(node=AbsoluteGate(self.node).output())
 
 
 class F(object):

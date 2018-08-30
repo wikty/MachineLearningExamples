@@ -354,6 +354,24 @@ class TestVariableOperator(unittest.TestCase):
         vv.forward()
         self.assertNotAlmostEqual(vv.value, prev_vv)
 
+    def test_positive(self):
+        self.v0.set_value(-3.0, False)
+        v = +self.v0
+        v.forward()
+        self.assertAlmostEqual(v.value, -3.0)
+
+    def test_negative(self):
+        self.v0.set_value(-3.0, False)
+        v = -self.v0
+        v.forward()
+        self.assertAlmostEqual(v.value, 3.0)
+
+    def test_absolute(self):
+        self.v0.set_value(-3.0, False)
+        v = abs(self.v0)
+        v.forward()
+        self.assertAlmostEqual(v.value, 3.0)
+
 
 if __name__ == '__main__':
     unittest.main()
