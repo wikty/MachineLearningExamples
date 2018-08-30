@@ -30,6 +30,7 @@ class Node(object):
         return self._value
 
     def set_value(self, value, accumulated=False):
+        """Change node value and not be tracked in graph."""
         if accumulated:
             self._value += value
         else:
@@ -289,6 +290,10 @@ class Variable(object):
     def zero_grad(self, backprop=True):
         """Clear gradients and return variable self."""
         self.node.zero_grad(backprop)
+        return self
+
+    def set_value(self, value, accumulated=False):
+        self.node.set_value(value, accumulated)
         return self
 
     def dump_graph(self, tab_num=0):

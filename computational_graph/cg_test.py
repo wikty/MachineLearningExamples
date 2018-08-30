@@ -336,6 +336,24 @@ class TestVariableOperator(unittest.TestCase):
         self.assertEqual(b.grad, 1.0)
         self.assertAlmostEqual(self.v1.grad, v1_grad_)
 
+    def test_set_value(self):
+        v = self.v0 + self.v1
+        vv = v * self.v2
+        vv.forward()
+        v_ = self.v0_ + self.v1_
+        vv_ = v_ * self.v2_
+        self.assertAlmostEqual(v.value, v_)
+        self.assertAlmostEqual(vv.value, vv_)
+        prev_vv = vv.value
+        # set_value will be forward override
+        v.set_value(4, True)
+        vv.forward()
+        self.assertAlmostEqual(vv.value, prev_vv)
+        # set_value will NOT be forward override
+        self.v0.set_value(100, True)
+        vv.forward()
+        self.assertNotAlmostEqual(vv.value, prev_vv)
+
 
 if __name__ == '__main__':
     unittest.main()
