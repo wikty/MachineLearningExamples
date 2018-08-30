@@ -175,23 +175,27 @@ class TestVariableOperator(unittest.TestCase):
         self.assertAlmostEqual(v.value, v_)
 
     def test_iadd(self):
-        self.v0 += self.v1
-        v0_ = self.v0_ + self.v1_
+        self.v0 += self.v1 + 3
+        self.v0.forward()
+        v0_ = self.v0_ + self.v1_ + 3
         self.assertAlmostEqual(self.v0.value, v0_)
 
     def test_isub(self):
-        self.v0 -= self.v1
-        v0_ = self.v0_ - self.v1_
+        self.v0 -= self.v1 + 3
+        self.v0.forward()
+        v0_ = self.v0_ - self.v1_ - 3
         self.assertAlmostEqual(self.v0.value, v0_)
 
     def test_imut(self):
-        self.v0 *= self.v1
-        v0_ = self.v0_ * self.v1_
+        self.v0 *= self.v1 * 3
+        self.v0.forward()
+        v0_ = self.v0_ * self.v1_ * 3
         self.assertAlmostEqual(self.v0.value, v0_)
 
     def test_idiv(self):
-        self.v0 /= self.v1
-        v0_ = self.v0_ / self.v1_
+        self.v0 /= self.v1 * 3
+        self.v0.forward()
+        v0_ = self.v0_ / self.v1_ / 3
         self.assertAlmostEqual(self.v0.value, v0_)
 
     def test_max_f(self):
