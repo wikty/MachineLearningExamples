@@ -73,6 +73,9 @@ f = MultiplyGate(h1, h2).output()  # 返回 MultiplyGate 的输出计算节点�
 * `ExpGate`
 * `SigmoidGate`
 * `ReLUGate`
+* `PositiveGate`
+* `NegativeGate`
+* `AbsoluteGate`
 
 **二元计算门**
 
