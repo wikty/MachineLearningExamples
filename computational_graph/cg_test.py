@@ -1,7 +1,30 @@
 import math
 import unittest
 
-from cg import Variable, F
+from cg import Variable, F, Node, AddGate, MultiplyGate, SigmoidGate
+
+
+class TestNodeGate(unittest.TestCase):
+
+        def test_dump_graph(self):
+            # n1 = Node(3)
+            # n2 = Node(4)
+            # n3 = Node(-5)
+            # n4 = Node(-6)
+            # n12 = AddGate(n1, n2).output()
+            # n34 = AddGate(n3, n4).output()
+            # n1234 = MultiplyGate(n12, n34).output()
+            # output = SigmoidGate(n1234).output()
+            # print('Before Forward:')
+            # output.dump_graph()
+            # print('After Forward:')
+            # output.forward()
+            # output.dump_graph()
+            # print('After Backward:')
+            # output.backward()
+            # output.dump_graph()
+            pass
+
 
 class TestVariableOperator(unittest.TestCase):
 

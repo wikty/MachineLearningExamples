@@ -18,6 +18,9 @@ class Node(object):
         self._grad = grad
         self._gate = gate
 
+    def __str__(self):
+        return 'Node(%s/%s)' % (str(self._value), str(self._grad))
+
     @property
     def grad(self):
         return self._grad
@@ -61,6 +64,18 @@ class Node(object):
                 n.backward(g)
         return self
 
+    def dump_graph(self, tab_num=0):
+        tab = '    '
+        if self._gate is None:
+            print('%s%s <- No Gate' % (tab*tab_num, self))
+        else:
+            print('%s%s <- %s(%s)' % (tab*tab_num, self, self._gate, 
+                ', '.join([str(n) for n in self._gate.input()])
+            ))
+            for node in self._gate.input():
+                node.dump_graph(tab_num+1)
+        return self
+
 
 class ConstNode(Node):
     """
@@ -98,6 +113,9 @@ class Gate(object):
         self.in_len = 1 if node2 is None else 2
         # generate output node
         self.out_node = Node(None, 0.0, self)
+
+    def __str__(self):
+        return self.__class__.__name__
 
     def input(self):
         """Return a list of input nodes."""
