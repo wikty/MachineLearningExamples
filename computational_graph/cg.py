@@ -71,7 +71,7 @@ class ConstNode(Node):
     def __init__(self, value):
         self._value = value
         self._grad = 0.0
-        self._grad = None
+        self._gate = None
 
     def set_value(self, value, accumulate=False):
         return self
