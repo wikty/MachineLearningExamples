@@ -302,6 +302,10 @@ class Variable(object):
         """Return variable grad after backward running."""
         return self.node.grad
 
+    @classmethod
+    def const(cls, value=0.0):
+        return cls(node=ConstNode(value))
+
     def forward(self):
         """forward and return variable self.
         Run forward before access its value."""
