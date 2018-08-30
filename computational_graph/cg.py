@@ -92,12 +92,15 @@ class Gate(object):
     """Computational Graph Component: Gate."""
 
     def __init__(self, node1, node2=None):
+        # input nodes
         self.in_node1 = node1
         self.in_node2 = node2
         self.in_len = 1 if node2 is None else 2
+        # generate output node
         self.out_node = Node(None, 0.0, self)
 
     def input(self):
+        """Return a list of input nodes."""
         if self.in_len == 2:
             return [self.in_node1, self.in_node2]
         else:
@@ -107,9 +110,11 @@ class Gate(object):
         return self.out_node
 
     def forward(self):
+        """Return the value of output node."""
         return 0.0
 
     def backward(self):
+        """Return the gradients of input nodes."""
         return [None] * self.in_len
 
 
