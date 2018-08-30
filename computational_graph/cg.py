@@ -39,6 +39,7 @@ class Node(object):
         if backprop and self._gate:
             for node in self._gate.input():
                 node.zero_grad(backprop)
+        return self
 
     def forward(self):
         """Calculate and return node's value."""
@@ -48,7 +49,7 @@ class Node(object):
                 node.forward()
             # update current node
             self._value = self._gate.forward()
-        return self._value
+        return self
 
     def backward(self, grad=1.0):
         """Calculate node's gradient."""
@@ -56,9 +57,9 @@ class Node(object):
         self._grad += grad  # accumulate gradients
         if self._gate is not None:
             # update predecessor nodes
-            grads = self._gate.backward()
-            for n, g in zip(self._gate.input(), grads):
+            for n, g in zip(self._gate.input(), self._gate.backward()):
                 n.backward(g)
+        return self
 
 
 class ConstNode(Node):
@@ -78,12 +79,13 @@ class ConstNode(Node):
 
     def zero_grad(self, backprop=False):
         self._grad = 0.0
+        return self
 
     def forward(self):
-        return self._value
+        return self
 
     def backward(self, grad=1.0):
-        return
+        return self
 
 
 class Gate(object):
