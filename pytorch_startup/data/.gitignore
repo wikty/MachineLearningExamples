@@ -1,0 +1,8 @@
+# ignore everything
+*
+# don't ignore subfolder
+!*/
+# don't ignore .gitignore
+!.gitignore
+# don't ignore data file, maybe it's not a good idea
+!ner_dataset.csv
