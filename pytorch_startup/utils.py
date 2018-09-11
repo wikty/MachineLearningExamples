@@ -137,8 +137,8 @@ class RunningAvg():
         self.steps += 1
 
     def __call__(self):
-        if self.steps == 0:
-            return 0.0
+        msg = "RunningAvg step is zero."
+        assert self.steps != 0
         if isinstance(self.data, float):
             return self.data / self.steps
         elif isinstance(self.data, list):
@@ -204,7 +204,8 @@ class Serialization(object):
         if checkpoint_dir is not None:
             self.checkpoint_dir = checkpoint_dir
         self.name = '{}.pth.tar'  # PyTorch save/load format
-        self.best = 'best.pth.tar'  # best model checkpoint filename
+        self.latest = 'last'  # latest model checkpoint name
+        self.best = 'best'  # best model checkpoint name
         self.logger = Logger.get()
 
     def serialize(self, model, epoch, optimizer=None, 
@@ -235,8 +236,9 @@ class Serialization(object):
         msg = "Save model parameters into file: {}"
         self.logger.info(msg.format(checkpoint_file))
         # copy best model
-        best_file = os.path.join(self.checkpoint_dir, self.best)
-        if is_best and not os.path.samefile(checkpoint_file, best_file):
+        if checkpoint != self.best and is_best:
+            best_file = os.path.join(self.checkpoint_dir, 
+                                     self.name.format(self.best))
             shutil.copy(checkpoint_file, best_file)
             msg = "Save best model parameters into file: {}"
             self.logger.info(msg.format(best_file))
