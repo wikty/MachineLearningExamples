@@ -31,7 +31,7 @@ class Pipeline(object):
 def build_dataset(cxt):
     data_file = os.path.join(config.data_dir, 
                              cxt['data_file'])
-    subprocess.run([PYTHON, 'build_dataset.py',
+    subprocess.run([PYTHON, cxt['build_dataset_script'],
                     '--data-dir', config.data_dir,
                     '--data-file', data_file,
                     '--train-factor', str(config.train_factor),
@@ -41,9 +41,18 @@ def build_dataset(cxt):
                     '--min-count-tag', str(config.min_count_tag)])
 
 
+def train(cxt):
+    subprocess.run([PYTHON, cxt['train_script'],
+                    '--data-dir', config.data_dir,
+                    '--model-dir', config.base_model_dir])
+
+
 if __name__ == '__main__':
     p = Pipeline({
         'data_file': 'ner_dataset.csv',
+        'build_dataset_script': 'build_dataset.py',
+        'train_script': 'train.py',
     })
     p.append(build_dataset)
+    p.append(train)
     p.run()
