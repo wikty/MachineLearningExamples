@@ -43,17 +43,39 @@ def build_dataset(cxt):
 
 
 def train(cxt):
+    model_dir = config.base_model_dir
     subprocess.run([PYTHON, cxt['train_script'],
                     '--data-dir', config.data_dir,
-                    '--model-dir', config.base_model_dir])
+                    '--model-dir', model_dir])
+    return {'model_dir': model_dir}
 
 
 def refine(cxt):
-    pass
+    model_dir = cxt['model_dir']
+    subprocess.run([PYTHON, cxt['refine_script'],
+                   '--data-dir', config.data_dir,
+                   '--model-dir', model_dir,
+                   '--checkpoint', 'best',
+                   '--job', 'lr'])
+    return {'model_dir': model_dir}
+
+
+def summary(cxt):
+    rtn = subprocess.run([PYTHON, cxt['summary_script'],
+                          '--model-dir', cxt['model_dir'],
+                          '--find-best', str(True)], 
+                          capture_output=True, text=True)
+    best_mode_dir = rtn.stdout.strip()
+    return {'model_dir': best_mode_dir}
 
 
 def evaluate(cxt):
-    pass
+    subprocess.run([PYTHON, cxt['evaluate_script'],
+                    '--data-dir', config.data_dir,
+                    '--model-dir', cxt['model_dir']])
+    
+    print('The directory of the best model: {}'.format(
+        cxt['model_dir']))
 
 
 if __name__ == '__main__':
@@ -62,7 +84,13 @@ if __name__ == '__main__':
         'data_factor': 0.05,
         'build_dataset_script': 'build_dataset.py',
         'train_script': 'train.py',
+        'refine_script': 'hyperparams.py',
+        'summary_script': 'summary.py',
+        'evaluate_script': 'evaluate.py'
     })
     p.append(build_dataset)
     p.append(train)
+    p.append(refine)
+    p.append(summary)
+    p.append(evaluate)
     p.run()
