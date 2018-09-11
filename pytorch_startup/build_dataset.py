@@ -114,29 +114,37 @@ class Builder(object):
     word_vocab_filename = 'words.txt'
     tag_vocab_filename = 'tags.txt'
 
-    def __init__(self, datasets_params_file, train_factor=0.7, 
-                 val_factor=0.15, test_factor=0.15, train_dirname='train', 
-                 val_dirname='val', test_dirname='test'):
+    def __init__(self, datasets_params_file, data_factor=1.0, 
+                 train_factor=0.7, val_factor=0.15, test_factor=0.15, 
+                 train_name='train', val_name='val', 
+                 test_name='test'):
+        """
+        Args:
+            datasets_params_file: the file will be used to save datasets
+                parameters.
+        """
         self.datasets_params_file = datasets_params_file
+        self.data_factor = data_factor
         self.train_factor = train_factor
         self.val_factor = val_factor
         self.test_factor = test_factor
-        self.train_dirname = train_dirname.strip('/').strip('\\')
-        self.val_dirname = val_dirname.strip('/').strip('\\')
-        self.test_dirname = test_dirname.strip('/').strip('\\')
+        self.train_name = train_name
+        self.val_name = val_name
+        self.test_name = test_name
         self.samples = []
         self.logger = Logger.get()
 
     def datasets(self, shuffle=True):
+        samples = self.samples[:int(len(self.samples)*self.data_factor)]
         if shuffle:
-            random.shuffle(self.samples)
-        l = len(self.samples)
+            random.shuffle(samples)
+        l = len(samples)
         i = int(l*self.train_factor)
         j = int(l*(self.train_factor+self.val_factor))
         return (
-            Dataset(self.train_dirname, self.samples[:i]),
-            Dataset(self.val_dirname, self.samples[i:j]),
-            Dataset(self.test_dirname, self.samples[j:])
+            Dataset(self.train_name, samples[:i]),
+            Dataset(self.val_name, samples[i:j]),
+            Dataset(self.test_name, samples[j:])
         )
 
     def load(self, csv_file, encoding='utf8'):
@@ -239,9 +247,9 @@ if __name__ == '__main__':
     train_factor, val_factor, test_factor = (config.train_factor,
                                              config.val_factor,
                                              config.test_factor)
-    train_dirname, val_dirname, test_dirname = (config.train_name,
-                                                config.val_name,
-                                                config.test_name)
+    train_name, val_name, test_name = (config.train_name,
+                                       config.val_name,
+                                       config.test_name)
 
     def tofloat(x):
         x = float(x)
@@ -263,6 +271,10 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', 
         default=data_dir,
         help="Directory for the dataset")
+    parser.add_argument('--data-factor',
+        default=1.0,
+        help="The proportion of dataset to be builded.",
+        type=tofloat)
     parser.add_argument('--train-factor', 
         default=train_factor,
         help="The factor of train dataset", 
@@ -289,6 +301,7 @@ if __name__ == '__main__':
 
     # get and check arguments
     data_file, data_dir = args.data_file, args.data_dir
+    data_factor = args.data_factor
     train_factor = args.train_factor
     val_factor = args.val_factor
     test_factor = args.test_factor
@@ -298,6 +311,8 @@ if __name__ == '__main__':
     assert os.path.isfile(data_file), msg.format(data_file)
     msg = '{} directory not found. Please create it first.'
     assert os.path.isdir(data_dir), msg.format(data_dir)
+    msg = 'the proportion of dataset to builded must in (0.0, 1.0]'
+    assert (data_factor > 0.0) and (data_factor <= 1.0), msg
     msg = 'train factor + val factor + test factor must be equal to 1.0'
     assert (1.0 == (train_factor + val_factor + test_factor)), msg
 
@@ -305,12 +320,13 @@ if __name__ == '__main__':
     Logger.set(datasets_log)
 
     builder = Builder(datasets_params_file,
+                      data_factor=data_factor,
                       train_factor=train_factor, 
                       val_factor=val_factor,
                       test_factor=test_factor,
-                      train_dirname=train_dirname,
-                      val_dirname=val_dirname,
-                      test_dirname=test_dirname)
+                      train_name=train_name,
+                      val_name=val_name,
+                      test_name=test_name)
     builder.load(data_file, 
                  encoding='windows-1252')
     builder.dump(data_dir, 

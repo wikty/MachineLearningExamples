@@ -34,6 +34,7 @@ def build_dataset(cxt):
     subprocess.run([PYTHON, cxt['build_dataset_script'],
                     '--data-dir', config.data_dir,
                     '--data-file', data_file,
+                    '--data-factor', str(cxt['data_factor']),
                     '--train-factor', str(config.train_factor),
                     '--val-factor', str(config.val_factor),
                     '--test-factor', str(config.test_factor),
@@ -47,9 +48,18 @@ def train(cxt):
                     '--model-dir', config.base_model_dir])
 
 
+def refine(cxt):
+    pass
+
+
+def evaluate(cxt):
+    pass
+
+
 if __name__ == '__main__':
     p = Pipeline({
         'data_file': 'ner_dataset.csv',
+        'data_factor': 0.05,
         'build_dataset_script': 'build_dataset.py',
         'train_script': 'train.py',
     })
