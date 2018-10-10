@@ -49,28 +49,45 @@ def get_model_2(sizes, device):
     return model.cuda(device)
 
 
-dtype = torch.float
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-print('Device: {}'.format(device))
+def train(model, loss_fn, x, y, epoch, learning_rate, 
+                        optimizer=None):
+    for e in range(epoch):
+        # forward
+        output = model(x)
+        loss = loss_fn(output, y)
+        
+        print('Epoch: {}, Loss: {}'.format(e, loss.item()))
+        
+        if optimizer:
+            optimizer.zero_grad()  # clear gradient buffer
+            # backward
+            loss.backward()
+            optimizer.step()
+        else:
+            model.zero_grad()
+            # backward
+            loss.backward()
+            with torch.no_grad():
+                for param in model.parameters():
+                    param -= learning_rate * param.grad
+
 
 epoch = 5000
 train_n = 100
 learning_rate = 1e-6
 in_dim, hidden_dim, out_dim = 1000, 500, 10
+dtype = torch.float
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+print('Device: {}'.format(device))
 x = torch.randn(train_n, in_dim, dtype=dtype, device=device)
 y = torch.randn(train_n, out_dim, dtype=dtype, device=device)
 
 # net = get_model_1((in_dim, hidden_dim, hidden_dim, hidden_dim, out_dim), device)
 net = get_model_2((in_dim, hidden_dim, hidden_dim, hidden_dim, out_dim), device)
 print('Net: {}'.format(net))
+
 loss_fn = nn.MSELoss(reduction='sum')
 optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate)
 
-# train
-for e in range(epoch):
-    output = net(x)
-    loss = loss_fn(output, y)
-    print('Epoch: {}, Loss: {}'.format(e, loss.item()))
-    optimizer.zero_grad()  # clear gradient buffer
-    loss.backward()
-    optimizer.step()
+# train(net, loss_fn, x, y, epoch, learning_rate)
+train(net, loss_fn, x, y, epoch, learning_rate, optimizer)
